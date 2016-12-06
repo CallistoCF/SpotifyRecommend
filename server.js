@@ -38,24 +38,25 @@ app.get('/search/:name', function(req, res) {
         //res.json(artist);
         var s = 'https://api.spotify.com/v1/artists/' + artistid + '/related-artists';
         console.log("s is " + s);
-        unirest.get(s)
+        artist.related = unirest.get(s)
                .end(function(response) {
                     if (response.ok) {
                         for (var i = 0; i < 10; i++) {
                           console.log(i + ") " + response.body.artists[i].name + " " + response.body.artists[i].id);
                         }
-                        res.json(response.body.artists[0]);
+                        artist.related = response.body.artists;
+                        res.json(artist);
                     }
                     else {
                         console.log("error " + response.code);
                     }
               });
+        //res.json(artist.related);
     });
 
     searchReq.on('error', function(code) {
         res.sendStatus(code);
     });
-
 });
 
 /*
