@@ -41,23 +41,55 @@ app.get('/search/:name', function(req, res) {
         artist.related = unirest.get(s)
                .end(function(response) {
                     if (response.ok) {
-                        for (var i = 0; i < 10; i++) {
+                        for (var i = 0; i < 20; i++) {
                           console.log(i + ") " + response.body.artists[i].name + " " + response.body.artists[i].id);
+                          console.log("prior to calling top tracks");
+                          response.body.artists[i].tracks = top_tracks(response.body.artists[i]);
+                          console.log("prior to returning artist");
+                          artist.related = response.body.artists;
+                          //
                         }
-                        artist.related = response.body.artists;
-                        res.json(artist);
-                    }
+
+                        //console.log("main artist related track name " + artist.related[0].tracks[0].name);
+                        setTimeout(function(){
+                          console.log("Timeout done!");
+                          artist = res.json(artist);
+                        }, 4000);
+
+
+                        //console.log("artist 0 tracks" + artist.related);
+                      }
                     else {
-                        console.log("error " + response.code);
-                    }
+                        console.log("error " + response.code);}
               });
-        //res.json(artist.related);
     });
 
     searchReq.on('error', function(code) {
         res.sendStatus(code);
     });
 });
+
+function top_tracks(item) {
+  console.log("top tracks called with " + item.name + " id: " + item.id);
+  var z = 'https://api.spotify.com/v1/artists/' + item.id + '/top-tracks?country=US';
+  unirest.get(z)
+    .end(function(re) {
+        if (re.ok) {
+          //console.log("Top track for " + artist.related[o].name + " is " + re.body.tracks[0].name);
+          //console.log("Top track is " + re.body.tracks[0].name);
+          //artist.related[o].tracks += re.body.tracks;
+          console.log("tracks " + re.body.tracks[0].name);
+          item.tracks = re.body.tracks;
+          //artist.related[o].tracks = re.body.tracks;
+          //re.send(re.body.tracks[0]);
+        }
+      else{
+        console.log("error " + re.code);
+      }
+    });
+console.log("Top tracks done!");
+return item;
+}
 
 /*
 app.get('/search/:name', function(req, res) {
